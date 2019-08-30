@@ -1,32 +1,38 @@
 body, html {
-  padding: 0 !important;
-  margin: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-#line-style {
-  float: right;
-  top: 40px;
+#controls {
+    position: relative;
+    float: right;
+    display: flex;
+    flex-direction: column;
+    background: lightblue;
+    padding: 15px;
+    margin: 10px;
+    top: 40px;
+    border-radius: 10px;
 }
 
 .fixed {
-  position: fixed;
-  left: 0;
-  top: 0;
+    position: fixed;
+    left: 0;
+    top: 0;
 }
 
 .layer-control {
-  position: relative;
-  z-index: 1;
+    z-index: 1;
 }
 
 .layer-top {
-  z-index: 0;
+    z-index: 0;
 }
 
 .layer-middle {
-  z-index: -1;
+    z-index: -1;
 }
 
 .layer-bottom {
-  z-index: -2;
+    z-index: -2;
 }

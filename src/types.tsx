@@ -3,7 +3,6 @@ export interface Dimensions {
     height: number;
 }
 
-export type CanvasRefs = [CanvasRenderingContext2D | null, (canvas: HTMLCanvasElement) => void];
 
 // Specifies a range of values
 export interface Range {
@@ -35,4 +34,4 @@ export interface GraphData {
     deviceIncrements: Increments;
 }
 
-export type LineStyle = 'plot' | 'line' | 'cycle' | 'bezier';
+export type LineStyle = 'plot' | 'line' | 'bezier' | 'spline';

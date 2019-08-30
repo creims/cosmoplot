@@ -1,5 +1,6 @@
 import {useCallback, useState} from "react";
-import {CanvasRefs} from "./types";
+
+export type CanvasRefs = [CanvasRenderingContext2D | null, (canvas: HTMLCanvasElement) => void];
 
 // We use a callback hook to store the context as state
 // This avoids calling ref.getContext every time we update the canvas

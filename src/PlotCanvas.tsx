@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {Point} from "./Point";
-import {useCanvasRefs} from "./CanvasProps";
+import {useCanvasRefs} from "./hooks";
 import {drawLine, drawPoint} from './Draw';
 import {LineStyle} from "./types";
 
@@ -9,17 +9,18 @@ type PlotCanvasProps = {
     height: number,
     points: Point[],
     activePoint: number | undefined,
-    lineType: LineStyle
+    lineType: LineStyle,
+    isCycle: boolean
 };
 
 const PlotCanvas: React.FC<PlotCanvasProps> = (props: PlotCanvasProps) => {
     const [ctx, canvasRef] = useCanvasRefs();
 
     useEffect(() => {
-        if (ctx === null) return;
+        if (ctx === null || props.points.length === 0) return;
 
         ctx.clearRect(0, 0, props.width, props.height);
-        drawLine(ctx, props.points, props.lineType);
+        drawLine(ctx, props.points, props.lineType, props.isCycle);
         props.points.forEach((point, index) => {
             let style: string;
             if (index === props.activePoint) {
@@ -30,7 +31,7 @@ const PlotCanvas: React.FC<PlotCanvasProps> = (props: PlotCanvasProps) => {
 
             drawPoint(ctx, point, style);
         });
-    }, [ctx, props.points, props.activePoint, props.width, props.height, props.lineType]);
+    }, [ctx, props]);
 
     return <canvas
         ref={canvasRef}

@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {useCanvasRefs} from "./CanvasProps";
+import {useCanvasRefs} from "./hooks";
 import {Viewport, GraphData} from "./types";
 
 type GraphBackgroundProps = {

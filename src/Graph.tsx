@@ -25,14 +25,19 @@ function getRegularViewport(min: number, max: number, windowX: number, windowY: 
     };
 }
 
-function getDefaultViewport(windowX: number, windowY: number) : Viewport {
+function getDefaultViewport(windowX: number, windowY: number): Viewport {
     return getRegularViewport(-10.5, 10.5, windowX, windowY);
 }
 
 function scaleViewport(v: Viewport, ratio: number) {
+    const newXExtent = v.x.extent * ratio;
+    const newYExtent = v.y.extent * ratio;
+    const newXMin = (v.x.extent - newXExtent) / 2 + v.x.min;
+    const newYMin = (v.y.extent - newYExtent) / 2 + v.y.min;
+
     return {
-      x: {min: v.x.min * ratio, max: v.x.max * ratio, extent: v.x.extent * ratio},
-      y: {min: v.y.min * ratio, max: v.y.max * ratio, extent: v.y.extent * ratio}
+        x: {min: newXMin, max: newXMin + newXExtent, extent: newXExtent},
+        y: {min: newYMin, max: newYMin + newYExtent, extent: newYExtent}
     };
 }
 
@@ -42,7 +47,8 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
     const [worldPoints, setWorldPoints] = useState<Point[]>([]);
     const [devicePoints, setDevicePoints] = useState<Point[]>([]);
     const [viewport, setViewport] = useState<Viewport>(getDefaultViewport(props.width, props.height));
-    const [lineStyle, setLineStyle] = useState<LineStyle>('bezier');
+    const [lineStyle, setLineStyle] = useState<LineStyle>('spline');
+    const [isCycle, setIsCycle] = useState<boolean>(false);
 
     // We store world coordinates and convert back to device coordinates to display
     function toWorld(point: Point): Point {
@@ -89,6 +95,9 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
     function handlePointerMove(e: React.PointerEvent) {
         if (!ptrDown) return;
 
+        // Prevents undesired drag behavior on Chrome
+        e.preventDefault();
+
         if (activePoint === undefined) { // Pan the graph
             const xRatio = e.movementX / props.width;
             const dx = (viewport.x.max - viewport.x.min) * xRatio;
@@ -126,12 +135,28 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
     }
 
     function handleWheel(e: React.WheelEvent) {
-        if(e.deltaY === 0) return;
+        if (e.deltaY === 0) return;
 
-        if(e.deltaY > 0) { // Scroll down (towards)
+        if (e.deltaY > 0) { // Scroll down: zoom out
             setViewport(scaleViewport(viewport, 1.2));
-        } else { // Scroll up (away)
+        } else { // Scroll up: zoom in
             setViewport(scaleViewport(viewport, 0.8));
+        }
+    }
+
+    function handleKeyDown(e: React.KeyboardEvent) {
+        switch (e.key) {
+            case 'd' || 'D': // Delete the active point
+                if (activePoint !== undefined) {
+                    devicePoints.splice(activePoint, 1);
+                    worldPoints.splice(activePoint, 1);
+                    setDevicePoints(devicePoints);
+                    setWorldPoints(worldPoints);
+                    setActivePoint(undefined);
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -141,12 +166,13 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
                 width: props.width,
                 height: props.height
             }}
-
+            tabIndex={0} // So we can focus the div and get keyboard events
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onDoubleClick={handleDoubleClick}
             onWheel={handleWheel}
+            onKeyDown={handleKeyDown}
             className='fixed layer-top'
         />
         <GridCanvas
@@ -160,17 +186,32 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
             points={devicePoints}
             activePoint={activePoint}
             lineType={lineStyle}
+            isCycle={isCycle}
         />
-        <select
-        className='layer-control'
-        id='line-style'
-        onChange={e => { setLineStyle(e.target.value as LineStyle); }}
+        <div
+            id='controls'
+            className='layer-control'
         >
-        <option value={'bezier'}>Bezier</option>
-        <option value={'line'}>Line</option>
-        <option value={'cycle'}>Cycle</option>
-        <option value={'plot'}>Plot</option>
-    </select>
+            <select
+                id='line-style'
+                onChange={e => {
+                    setLineStyle(e.target.value as LineStyle);
+                }}
+            >
+                <option value={'spline'}>Spline</option>
+                <option value={'bezier'}>Bezier</option>
+                <option value={'line'}>Line</option>
+                <option value={'plot'}>Plot</option>
+            </select>
+            <div>
+                <input type='checkbox'
+                       onChange={e => {
+                           setIsCycle(e.target.checked);
+                       }}
+                />
+                <label htmlFor='cycle'>Cycle</label>
+            </div>
+        </div>
     </>
 };
 
