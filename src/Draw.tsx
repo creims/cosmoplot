@@ -1,6 +1,6 @@
 import {Point} from './Point';
 import {LineStyle} from "./types";
-import {fitCurve} from "./fitcurve";
+import {fitCurve, fitCurveCycle} from "./fitcurve";
 
 export const radius: number = 8;
 
@@ -81,14 +81,14 @@ function piecewiseCubicBezier(ctx: CanvasRenderingContext2D, points: Point[], dr
 }
 
 export function drawLine(ctx: CanvasRenderingContext2D, points: Point[], type: LineStyle, cycle: boolean) {
-    if(cycle) {
+    if(cycle && type !== 'spline') {
         points = points.slice();
         points.push(points[0]);
     }
 
     switch (type) {
         case 'spline':
-            const cps = fitCurve(points);
+            const cps = cycle ? fitCurveCycle(points) : fitCurve(points);
             piecewiseCubicBezier(ctx, cps, false);
             break;
         case 'bezier':

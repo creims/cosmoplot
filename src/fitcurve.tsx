@@ -1,4 +1,4 @@
-import {Point} from "./Point";
+import {Point, distance} from "./Point";
 
 // Algorithm from an excellent post by Lubos Brieda: https://www.particleincell.com/2012/bezier-splines/
 // Uses Thomas's Algorithm to compute control points from an array of knots.
@@ -45,32 +45,162 @@ function computeControlPoints(knots: number[]): { cp1: number[], cp2: number[] }
     }
 
     cp1[n - 1] = r[n - 1] / b[n - 1];
-    for (let i = n - 2; i >= 0; --i)
+    for (let i = n - 2; i >= 0; --i) {
         cp1[i] = (r[i] - c[i] * cp1[i + 1]) / b[i];
+    }
 
     //we have p1, now compute p2
-    for (let i = 0; i < n - 1; i++)
+    for (let i = 0; i < n - 1; i++) {
         cp2[i] = 2 * knots[i + 1] - cp1[i + 1];
+    }
 
     cp2[n - 1] = 0.5 * (knots[n] + cp1[n - 1]);
 
-    return {cp1: cp1, cp2: cp2};
+    return {cp1, cp2};
 }
 
-// TODO: Add separate algorithm that correctly handles closed curves (loops)
-// See http://www.jacos.nl/jacos_html/spline/circular/index.html
+// Generates Bezier curves that smoothly connect a set of points
+// This version is for an open curve (the endpoints are not connected)
 export function fitCurve(points: Point[]): Point[] {
-    if(points.length < 3) return points;
+    if (points.length < 3) return points;
 
     const xCPs = computeControlPoints(points.map(p => p.x));
     const yCPs = computeControlPoints(points.map(p => p.y));
 
     const cubicCPs: Point[] = [points[0]];
-    for(let i = 0; i < points.length - 1; i++) {
+    for (let i = 0; i < points.length - 1; i++) {
         cubicCPs.push({x: xCPs.cp1[i], y: yCPs.cp1[i]});
         cubicCPs.push({x: xCPs.cp2[i], y: yCPs.cp2[i]});
         cubicCPs.push(points[i + 1]);
     }
+
+    return cubicCPs;
+}
+
+function weight(p1: Point, p2: Point): number {
+    const minWeight = 1;
+    const dist = distance(p1, p2);
+    return dist < minWeight ? minWeight : dist;
+}
+
+// solves Ax = r by Gaussian elimination, or so I'm told
+// Source: Lubos Brieda and Jaco Stuifbergen
+// view-source:http://www.jacos.nl/jacos_html/spline/circular/splines_circularW.svg
+function thomasCircular(r_in: number[], a_in: number[], b_in: number[], c_in: number[]) {
+    let i: number, m: number;
+    const r = r_in.slice();
+    const a = a_in.slice();
+    const b = b_in.slice();
+    const c = c_in.slice();
+    const n = r.length;
+
+    // last column of matrix
+    const lc = new Array(n);
+    lc[0] = a[0];
+
+    // last row
+    let lr = c[n - 1];
+
+    for (i = 0; i < n - 3; i++) {
+        m = a[i + 1] / b[i];
+        b[i + 1] -= m * c[i];
+        r[i + 1] -= m * r[i];
+        lc[i + 1] = -m * lc[i];
+
+        m = lr / b[i];
+        b[n - 1] -= m * lc[i];
+        lr = -m * c[i];
+        r[n - 1] -= m * r[i]
+    }
+
+    m = a[i + 1] / b[i];
+    b[i + 1] -= m * c[i];
+    r[i + 1] -= m * r[i];
+    c[i + 1] -= m * lc[i];
+    m = lr / b[i];
+    b[n - 1] -= m * lc[i];
+    a[n - 1] -= m * c[i];
+    r[n - 1] = r[n - 1] - m * r[i];
+    i = n - 2;
+
+    m = a[i + 1] / b[i];
+    b[i + 1] -= m * c[i];
+    r[i + 1] -= m * r[i];
+
+    // Our return array
+    const x = new Array(n);
+
+    x[n - 1] = r[n - 1] / b[n - 1];
+    lc[n - 2] = 0;
+    for (i = n - 2; i >= 0; --i) {
+        x[i] = (r[i] - c[i] * x[i + 1] - lc[i] * x[n - 1]) / b[i];
+    }
+
+    return x;
+}
+
+function computeCircularControlPoints(knots: number[], weights: number[]): { cp1: number[], cp2: number[] } {
+    let W = weights.slice();
+    let K = knots.slice();
+
+    const n = K.length;
+    let frac_i: number;
+
+    // rhs vector
+    const a: number [] = [];
+    const b: number [] = [];
+    const c: number [] = [];
+    const r: number [] = [];
+
+    //internal segments
+    W[-1] = W[n - 1];
+    W[n] = W[0];
+    K[n] = K[0];
+    for (let i = 0; i < n; i++) {
+        frac_i = W[i] / W[i + 1];
+        a[i] = W[i] * W[i];
+        b[i] = 2 * W[i - 1] * (W[i - 1] + W[i]);
+        c[i] = W[i - 1] * W[i - 1] * frac_i;
+        r[i] = Math.pow(W[i - 1] + W[i], 2) * K[i] + Math.pow(W[i - 1], 2) * (1 + frac_i) * K[i + 1];
+
+    }
+    const cp1: number[] = thomasCircular(r, a, b, c);
+    const cp2: number[] = [];
+
+    //we have p1, now compute p2
+    cp1[n] = cp1[0];
+    for (let i = 0; i < n; i++) {
+        cp2[i] = K[i + 1] * (1 + W[i] / W[i + 1]) - cp1[i + 1] * (W[i] / W[i + 1]);
+    }
+
+    return {cp1, cp2};
+}
+
+// This generates smooth curves between points, including the start- and endpoints
+export function fitCurveCycle(points: Point[]): Point[] {
+    if (points.length < 3) return points;
+
+    // Construct point weights
+    const weights: number[] = [];
+    for (let i = 0; i < points.length - 1; i++) {
+        weights.push(weight(points[i], points[i + 1]));
+    }
+    weights.push(weight(points[0], points[points.length - 1]));
+
+    const xCPs = computeCircularControlPoints(points.map(p => p.x), weights);
+    const yCPs = computeCircularControlPoints(points.map(p => p.y), weights);
+
+    const cubicCPs: Point[] = [points[0]];
+    let i;
+    for (i = 0; i < points.length - 1; i++) {
+        cubicCPs.push({x: xCPs.cp1[i], y: yCPs.cp1[i]});
+        cubicCPs.push({x: xCPs.cp2[i], y: yCPs.cp2[i]});
+        cubicCPs.push(points[i + 1]);
+    }
+
+    cubicCPs.push({x: xCPs.cp1[i], y: yCPs.cp1[i]});
+    cubicCPs.push({x: xCPs.cp2[i], y: yCPs.cp2[i]});
+    cubicCPs.push(points[0]);
 
     return cubicCPs;
 }
