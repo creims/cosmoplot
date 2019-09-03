@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/cosmoplot/static/css/main.865e9557.chunk.css",
-    "main.js": "/cosmoplot/static/js/main.6e7fcb94.chunk.js",
-    "main.js.map": "/cosmoplot/static/js/main.6e7fcb94.chunk.js.map",
+    "main.css": "/cosmoplot/static/css/main.f911701a.chunk.css",
+    "main.js": "/cosmoplot/static/js/main.a28ba14a.chunk.js",
+    "main.js.map": "/cosmoplot/static/js/main.a28ba14a.chunk.js.map",
     "runtime~main.js": "/cosmoplot/static/js/runtime~main.b9547e2b.js",
     "runtime~main.js.map": "/cosmoplot/static/js/runtime~main.b9547e2b.js.map",
-    "static/js/2.fa5d493e.chunk.js": "/cosmoplot/static/js/2.fa5d493e.chunk.js",
-    "static/js/2.fa5d493e.chunk.js.map": "/cosmoplot/static/js/2.fa5d493e.chunk.js.map",
+    "static/js/2.ea50e47b.chunk.js": "/cosmoplot/static/js/2.ea50e47b.chunk.js",
+    "static/js/2.ea50e47b.chunk.js.map": "/cosmoplot/static/js/2.ea50e47b.chunk.js.map",
     "index.html": "/cosmoplot/index.html",
-    "precache-manifest.6518bc29cbe80be6577426e9b96451ba.js": "/cosmoplot/precache-manifest.6518bc29cbe80be6577426e9b96451ba.js",
+    "precache-manifest.7fbc2119914f8d9a396a164e64fca115.js": "/cosmoplot/precache-manifest.7fbc2119914f8d9a396a164e64fca115.js",
     "service-worker.js": "/cosmoplot/service-worker.js",
-    "static/css/main.865e9557.chunk.css.map": "/cosmoplot/static/css/main.865e9557.chunk.css.map"
+    "static/css/main.f911701a.chunk.css.map": "/cosmoplot/static/css/main.f911701a.chunk.css.map"
   }
 }
