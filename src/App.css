@@ -8,11 +8,16 @@ body, html {
     float: right;
     display: flex;
     flex-direction: column;
+
+    top: 40px;
+
+}
+
+.ui-box {
+    border-radius: 10px;
     background: lightblue;
     padding: 15px;
     margin: 10px;
-    top: 40px;
-    border-radius: 10px;
 }
 
 .fixed {

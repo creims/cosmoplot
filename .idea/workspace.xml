@@ -3,7 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="98827495-fda3-4d61-83d1-bc86e2bd8e13" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Draw.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Draw.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Graph.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Graph.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PlotCanvas.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/PlotCanvas.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Point.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Point.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/fitcurve.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/fitcurve.tsx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,6 +20,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="TypeScript JSX File" />
+        <option value="CSS File" />
       </list>
     </option>
   </component>
@@ -36,6 +41,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/public" />
+    <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -45,7 +51,7 @@
     <property name="nodejs_interpreter_path" value="node" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="Settings.JavaScript.Linters" />
+    <property name="settings.editor.selected.configurable" value="com.maddyhome.idea.vim.ui.VimEmulationConfigurable" />
     <property name="ts.external.directory.path" value="C:\Users\Colin\WebstormProjects\cosmochart\node_modules\typescript\lib" />
   </component>
   <component name="RecentsManager">
@@ -92,8 +98,16 @@
       <updated>1566406483494</updated>
       <workItem from="1566406485806" duration="47230000" />
       <workItem from="1566670439589" duration="8510000" />
-      <workItem from="1566678964927" duration="54535000" />
+      <workItem from="1566678964927" duration="69711000" />
     </task>
+    <task id="LOCAL-00001" summary="Added closed spline curve algorithm">
+      <created>1567450751123</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1567450751123</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -111,5 +125,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added closed spline curve algorithm" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added closed spline curve algorithm" />
   </component>
 </project>

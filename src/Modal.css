@@ -1,0 +1,42 @@
+.Modal {
+    z-index: 2;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(60, 60, 60, 0.4);
+}
+
+.Modal-box {
+    background-color: lightblue;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.Modal-close-button {
+    cursor: pointer;
+    border-radius: 4px;
+    background-color: cyan;
+    margin: 10px;
+    font-size: 1.5em;
+}
+
+.Modal-close-button:hover {
+    background-color: mediumspringgreen;
+}
+
+.Modal-header {
+    text-align: center;
+}
+
+.Modal-hide {
+    display: none;
+}
+
+.Modal-show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

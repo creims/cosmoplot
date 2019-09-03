@@ -1,9 +1,10 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Point, distance} from './Point';
+import {Point, distance, pointToString} from './Point';
 import {radius} from './Draw';
 import GridCanvas from './GridCanvas';
 import PlotCanvas from './PlotCanvas';
 import {Dimensions, LineStyle, Viewport} from "./types";
+import Modal from "./Modal";
 
 function getRegularViewport(min: number, max: number, windowX: number, windowY: number): Viewport {
     let ratioX: number = 1;
@@ -41,6 +42,36 @@ function scaleViewport(v: Viewport, ratio: number) {
     };
 }
 
+function exportString(points: Point[]): string {
+    if(points.length === 0) return '[]';
+
+    let str = '[' + pointToString(points[0]);
+    for(let i = 1; i < points.length; i++) {
+        str += ',' + pointToString(points[i]);
+    }
+
+   return str + ']';
+}
+
+// TODO: rewrite this monstrosity (it was fun though)
+function importFromString(str: string): Point[] {
+    type partialPointList = {x: undefined | number, points: Point[]};
+    const startList : partialPointList = {x: undefined, points: []};
+    return str.replace(/[^\d.,-]/gi, '')
+        .split(',')
+        .map(str => Number.parseFloat(str))
+        .reduce((acc, curr) => {
+            if(acc.x !== undefined) {
+                acc.points.push({x: acc.x, y: curr});
+                acc.x = undefined;
+            } else {
+                acc.x = curr;
+            }
+            return acc;
+        }, startList).points;
+}
+
+// TODO: Hew the monolith! This component is too complex
 const Graph: React.FC<Dimensions> = (props: Dimensions) => {
     const [activePoint, setActivePoint] = useState<number | undefined>(undefined);
     const [ptrDown, setPtrDown] = useState<boolean>(false);
@@ -49,6 +80,8 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
     const [viewport, setViewport] = useState<Viewport>(getDefaultViewport(props.width, props.height));
     const [lineStyle, setLineStyle] = useState<LineStyle>('spline');
     const [isCycle, setIsCycle] = useState<boolean>(false);
+    const [showExport, setShowExport] = useState<boolean>(false);
+    const [showImport, setShowImport] = useState<boolean>(false);
 
     // We store world coordinates and convert back to device coordinates to display
     function toWorld(point: Point): Point {
@@ -70,6 +103,11 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
     useEffect(() => {
         setDevicePoints(worldPoints.map(toDevice));
     }, [toDevice, worldPoints]);
+
+    function clearPoints() {
+        setWorldPoints([]);
+        setActivePoint(undefined);
+    }
 
     function handlePointerDown(e: React.PointerEvent) {
         // Set the active point
@@ -130,7 +168,6 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
     function handleDoubleClick(e: React.MouseEvent) {
         const newDevicePoint: Point = {x: e.clientX, y: e.clientY};
         setActivePoint(worldPoints.length);
-        setDevicePoints([...devicePoints, newDevicePoint]);
         setWorldPoints([...worldPoints, toWorld(newDevicePoint)]);
     }
 
@@ -150,9 +187,8 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
                 if (activePoint !== undefined) {
                     devicePoints.splice(activePoint, 1);
                     worldPoints.splice(activePoint, 1);
-                    setDevicePoints(devicePoints);
-                    setWorldPoints(worldPoints);
                     setActivePoint(undefined);
+                    setWorldPoints(worldPoints);
                 }
                 break;
             default:
@@ -160,6 +196,7 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
         }
     }
 
+    // TODO: Extract modal contents to own components
     return <>
         <div
             style={{
@@ -173,6 +210,7 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
             onDoubleClick={handleDoubleClick}
             onWheel={handleWheel}
             onKeyDown={handleKeyDown}
+            onBlur={() => {setActivePoint(undefined);}}
             className='fixed layer-top'
         />
         <GridCanvas
@@ -190,8 +228,11 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
         />
         <div
             id='controls'
-            className='layer-control'
+            className='ui-box layer-control'
         >
+            <button
+                onClick={clearPoints}
+            >Clear</button>
             <select
                 id='line-style'
                 onChange={e => {
@@ -211,7 +252,38 @@ const Graph: React.FC<Dimensions> = (props: Dimensions) => {
                 />
                 <label htmlFor='cycle'>Cycle</label>
             </div>
+            <button onClick={() => {setShowExport(true)}}>Export</button>
+            <button onClick={() => {setShowImport(true)}}>Import</button>
         </div>
+        <Modal
+            title='Export Points'
+            children={<textarea readOnly style={{resize:'none'}} value={exportString(worldPoints)} />}
+            show={showExport}
+            handleClose={() => {
+                setShowExport(false);
+            }}
+        />
+        <Modal
+            title='Import Points'
+            children={
+                <>
+                <textarea
+                    id='importText'
+                    style={{resize:'none'}} />
+                <button
+                    onClick={() => {
+                        const textArea = document.getElementById('importText') as HTMLTextAreaElement;
+                        const importStr = textArea.value;
+                        setWorldPoints(importFromString(importStr));
+                    }}
+                >Import</button>
+                </>
+            }
+            show={showImport}
+            handleClose={() => {
+                setShowImport(false);
+            }}
+        />
     </>
 };
 

@@ -17,7 +17,7 @@ const PlotCanvas: React.FC<PlotCanvasProps> = (props: PlotCanvasProps) => {
     const [ctx, canvasRef] = useCanvasRefs();
 
     useEffect(() => {
-        if (ctx === null || props.points.length === 0) return;
+        if (ctx === null) return;
 
         ctx.clearRect(0, 0, props.width, props.height);
         drawLine(ctx, props.points, props.lineType, props.isCycle);
